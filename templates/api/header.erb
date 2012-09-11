@@ -18,6 +18,22 @@ log_file = <%= config['log_file'] %>
 
 # Backlog requests when creating socket
 backlog = <%= config['backlog'] %>
+
+# SQLAlchemy connection string for the reference implementation
+# registry server. Any valid SQLAlchemy connection string is fine.
+# See: http://www.sqlalchemy.org/docs/05/reference/sqlalchemy/connections.html#sqlalchemy.create_engine
+sql_connection = <%= config['sql_connection']%>
+
+# Period in seconds after which SQLAlchemy should reestablish its connection
+# to the database.
+#
+# MySQL uses a default `wait_timeout` of 8 hours, after which it will drop
+# idle connections. This can result in 'MySQL Gone Away' exceptions. If you
+# notice this, you can lower this value to ensure that SQLAlchemy reconnects
+# before MySQL can drop the connection.
+sql_idle_timeout = <%= config['sql_idle_timeout'] %>
+
+
 # Backlog requests when creating socket
 
 # Number of Glance API worker processes to start.
@@ -80,3 +96,11 @@ registry_client_protocol = http
 # to the registry server, if any. Alternately, you may set the
 # GLANCE_CLIENT_CA_FILE environ variable to a filepath of the CA cert file
 # registry_client_ca_file = /path/to/ca/file
+
+# ============ Notification System Options =====================
+
+# Notifications can be sent when images are create, updated or deleted.
+# There are three methods of sending notifications, logging (via the
+# log_file directive), rabbit (via a rabbitmq queue), qpid (via a Qpid
+# message queue), or noop (no notifications sent, the default)
+notifier_strategy = noop

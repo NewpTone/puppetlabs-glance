@@ -1,0 +1,29 @@
+# ============ RBD Store Options =============================
+
+# Ceph configuration file path
+# If using cephx authentication, this file should
+# include a reference to the right keyring
+# in a client.<USER> section
+rbd_store_ceph_conf = /etc/ceph/ceph.conf
+
+# RADOS user to authenticate as (only applicable if using cephx)
+rbd_store_user = bind_host = <%= config['user'] %>
+
+# RADOS pool in which images are stored
+rbd_store_pool = images
+
+# Images will be chunked into objects of this size (in megabytes).
+# For best performance, this should be a power of two
+rbd_store_chunk_size = bind_host = <%= config['chunk_size'] %>
+
+# ============ Delayed Delete Options =============================
+
+# Turn on/off delayed delete
+delayed_delete = <%= config['delayed_delete'] %>
+
+# Delayed delete time in seconds
+scrub_time = <%= config['scrub_time'] %>
+
+# Directory that the scrubber will use to remind itself of what to delete
+# Make sure this is also set in glance-scrubber.conf
+scrubber_datadir = /var/lib/glance/scrubber

@@ -1,32 +1,19 @@
-# Default minimal pipeline
+# Use this pipeline for no auth - DEFAULT
 [pipeline:glance-registry]
-pipeline = context registryapp
+pipeline = unauthenticated-context registryapp
 
-# Use the following pipeline for keystone auth
-# i.e. in glance-registry.conf:
-#   [paste_deploy]
-#   flavor = keystone
-
+# Use this pipeline for keystone auth
 [pipeline:glance-registry-keystone]
 pipeline = authtoken context registryapp
 
 [app:registryapp]
-paste.app_factory = glance.common.wsgi:app_factory
-glance.app_factory = glance.registry.api.v1:API
+paste.app_factory = glance.registry.api.v1:API.factory
 
 [filter:context]
-context_class = glance.registry.context.RequestContext
-paste.filter_factory = glance.common.wsgi:filter_factory
-glance.filter_factory = glance.common.context:ContextMiddleware
+paste.filter_factory = glance.api.middleware.context:ContextMiddleware.factory
+
+[filter:unauthenticated-context]
+paste.filter_factory = glance.api.middleware.context:UnauthenticatedContextMiddleware.factory
 
 [filter:authtoken]
 paste.filter_factory = keystone.middleware.auth_token:filter_factory
-auth_host = <%= auth_host %>
-auth_port = <%= auth_port %>
-auth_protocol = <%= auth_protocol %>
-auth_uri = <%= auth_uri %>
-<% if auth_type == 'keystone' -%>
-admin_tenant_name = <%= keystone_tenant %>
-admin_user = <%= keystone_user %>
-admin_password = <%= keystone_password %>
-<% end -%>
