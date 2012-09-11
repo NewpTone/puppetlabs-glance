@@ -47,7 +47,9 @@ class glance::api(
   $keystone_tenant = 'admin',
   $keystone_user = 'admin',
   $keystone_password = 'ChangeMe',
-  $enabled           = true
+  $enabled           = true,
+  $sql_connection    = 'sqlite:///glance.sqlite',
+  $sql_idle_timeout  = '3600',
 ) inherits glance {
 
   # used to configure concat
@@ -80,26 +82,66 @@ class glance::api(
       'backlog'       => $backlog,
       'workers'       => $workers,
       'registry_host' => $registry_host,
-      'registry_port' => $registry_port
+      'registry_port' => $registry_port,
+      'sql_connection'=> $sql_connection,
+      'sql_idle_timeout' => $sql_idle_timeout,
     },
     order  => '01',
   }
 
+  glance::api::config {'rabbitmq':
+    config => {
+    },
+    order => '02',
+  }
+  glance::api::config {"qpid":
+    config => {
+    },
+    order => '03',
+  }
+
   glance::api::config { 'footer':
     config => {
-      'auth_type' => $auth_type
+      'auth_host' => $auth_host,
+      'auth_port' => $auth_port,
+      'auth_protocol' => $auth_protocol,
+      'admin_tenant_name' => $keystone_tenant,
+      'admin_user' => $keystone_user,
+      'admin_password' => $keystone_password,
     },
     order   => '99',
     require => Glance::Api::Config['backend'],
   }
 
-  file { '/etc/glance/glance-api-paste.ini':
-    content => template('glance/glance-api-paste.ini.erb'),
-  }
+ # concat { '/etc/glance/glance-cache.conf':
+ #   owner   => 'glance',
+ #   group   => 'root',
+ #   mode    => 640,
+ #   require => Class['glance'],
+ # }
 
-  file { '/etc/glance/glance-cache.conf':
-    content => template('glance/glance-cache.conf.erb'),
-  }
+
+ # glance::cache::config{ 'header':
+ #   config => {
+ #	'log_verbose' => $log_verbose,
+ #	'log_debug' => $log_debug,
+ #	'registry_host' => $registry_host,
+ #	'registry_port' => $registry_port,
+ #	'auth_type' => $auth_type,
+ #	'keystone_tenant' => $keystone_tenant,
+ #	'keystone_user' => $keystone_user,
+ #	'keystone_password' => $keystone_password,
+ #   },
+ #   order => '1',
+ # }
+
+ # file { '/etc/glance/glance-api-paste.ini':
+ #   content => template('glance/glance-api-paste.ini.erb'),
+ # }
+
+ # file { '/etc/glance/glance-cache.conf':
+ #   content => template('glance/glance-cache.conf.erb'),
+ # }
 
   if $enabled {
     $service_ensure = 'running'
