@@ -142,6 +142,16 @@ class glance::api(
       'DEFAULT/admin_password':    value => $eystone_password;
     }
   }
+  # glance-api-paste.ini config
+    glance_api_paste_ini {
+      'app:apiversions/paste.app_factory':		value => 'glance.api.versions:create_resource',
+      'app:apiv1app/paste.app_factory':			value => 'glance.api.v1.router:API.factory',
+      'app:apiv2app/paste.app_factory':			value => 'glance.api.v2.router:API.factory',
+      'filter:versionnegotiation/paste.filter_factory': value => 'glance.api.middleware.version_negotiation:VersionNegotiationFilter.factory',
+      'filter:cache/paste.filter_factory':		value => 'glance.api.middleware.cache:CacheFilter.factory',
+      'filter:cachemanage/paste.filter_factory':	value => 'glance.api.middleware.cache_manage:CacheManageFilter.factory',
+    }
+
 
   file { ['/etc/glance/glance-api.conf',
           '/etc/glance/glance-api-paste.ini',
