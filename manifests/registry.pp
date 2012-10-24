@@ -74,6 +74,12 @@ class glance::registry(
     }
   }
 
+  # glance_registry_paste_ini config
+    glance_registry_paste_ini {
+       'app:registryapp/paste.app_factory':	value => 'glance.registry.api.v1:API.factory';
+       'filter:context/paste.filter_factory':	value => 'glance.api.middleware.context:ContextMiddleware.factory';
+	}
+
   file { ['/etc/glance/glance-registry.conf',
           '/etc/glance/glance-registry-paste.ini'
          ]:
